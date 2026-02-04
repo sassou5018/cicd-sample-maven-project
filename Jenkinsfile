@@ -6,6 +6,11 @@ pipeline {
         jdk 'JDK17'
     }
 
+    triggers {
+        // Trigger on push to main or PRs targeting main
+        githubPush()
+    }
+
     environment {
         APP_NAME = 'cicd-sample-maven-project'
     }
