@@ -91,7 +91,7 @@
                 <version>3.4.0</version>
                 <configuration>
                     <from>
-                        <image>eclipse-temurin:17-jre-alpine</image>
+                        <image>eclipse-temurin:17-jre-alpine@sha256:71337aec9f5c665b2a6b49baed50251ee9a8fa9995c589a93be8badc85e40551</image>
                     </from>
                     <to>
                         <image>${project.artifactId}:${project.version}</image>
@@ -100,6 +100,7 @@
                         </tags>
                     </to>
                     <container>
+                        <mainClass>com.example.Application</mainClass>
                         <jvmFlags>
                             <jvmFlag>-Xms256m</jvmFlag>
                             <jvmFlag>-Xmx512m</jvmFlag>
