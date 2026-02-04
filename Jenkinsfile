@@ -1,11 +1,4 @@
 pipeline {
-  agent any
-  stages {
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
-    }
     agent any
 
     tools {
@@ -14,7 +7,6 @@ pipeline {
     }
 
     triggers {
-        // Trigger on push to main or PRs targeting main
         githubPush()
     }
 
@@ -29,56 +21,44 @@ pipeline {
             }
         }
 
-    stage('Build') {
-      steps {
-        sh 'mvn clean compile -DskipTests'
-      }
+        stage('Build') {
+            steps {
+                sh 'mvn clean compile -DskipTests'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+            post {
+                always {
+                    junit '**/target/surefire-reports/*.xml'
+                }
+            }
+        }
+
+        stage('Package') {
+            steps {
+                sh 'mvn package -DskipTests'
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                }
+            }
+        }
     }
 
-    stage('Test') {
-      post {
+    post {
         always {
-          junit '**/target/surefire-reports/*.xml'
+            cleanWs()
         }
-
-      }
-      steps {
-        sh 'mvn test'
-      }
-    }
-
-    stage('Package') {
-      post {
         success {
-          archiveArtifacts(artifacts: 'target/*.jar', fingerprint: true)
+            echo 'Build and tests completed successfully!'
         }
-
-      }
-      steps {
-        sh 'mvn package -DskipTests'
-      }
+        failure {
+            echo 'Build or tests failed!'
+        }
     }
-
-  }
-  tools {
-    maven 'Maven'
-    jdk 'JDK17'
-  }
-  environment {
-    APP_NAME = 'cicd-sample-maven-project'
-  }
-  post {
-    always {
-      cleanWs()
-    }
-
-    success {
-      echo 'Build and tests completed successfully!'
-    }
-
-    failure {
-      echo 'Build or tests failed!'
-    }
-
-  }
 }
