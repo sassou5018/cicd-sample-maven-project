@@ -12,7 +12,7 @@ pipeline {
     }
 
     triggers {
-        pollSCM('')
+        pollSCM('* * * * *')  // Poll every minute (minimum interval)
         githubPush()
     }
 
