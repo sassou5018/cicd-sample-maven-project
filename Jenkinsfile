@@ -1,60 +1,62 @@
 pipeline {
-    agent any
-
-    tools {
-        maven 'Maven'
-        jdk 'JDK17'
+  agent any
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
     }
 
-    environment {
-        APP_NAME = 'cicd-sample-maven-project'
+    stage('Build') {
+      steps {
+        sh 'mvn clean compile -DskipTests'
+      }
     }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh 'mvn clean compile -DskipTests'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                sh 'mvn test'
-            }
-            post {
-                always {
-                    junit '**/target/surefire-reports/*.xml'
-                }
-            }
-        }
-
-        stage('Package') {
-            steps {
-                sh 'mvn package -DskipTests'
-            }
-            post {
-                success {
-                    archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-                }
-            }
-        }
-    }
-
-    post {
+    stage('Test') {
+      post {
         always {
-            cleanWs()
+          junit '**/target/surefire-reports/*.xml'
         }
-        success {
-            echo "Build and tests completed successfully!"
-        }
-        failure {
-            echo "Build or tests failed!"
-        }
+
+      }
+      steps {
+        sh 'mvn test'
+      }
     }
+
+    stage('Package') {
+      post {
+        success {
+          archiveArtifacts(artifacts: 'target/*.jar', fingerprint: true)
+        }
+
+      }
+      steps {
+        sh 'mvn package -DskipTests'
+      }
+    }
+
+  }
+  tools {
+    maven 'Maven'
+    jdk 'JDK17'
+  }
+  environment {
+    APP_NAME = 'cicd-sample-maven-project'
+  }
+  post {
+    always {
+      cleanWs()
+    }
+
+    success {
+      echo 'Build and tests completed successfully!'
+    }
+
+    failure {
+      echo 'Build or tests failed!'
+    }
+
+  }
 }
