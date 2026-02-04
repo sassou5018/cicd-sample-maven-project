@@ -57,7 +57,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'mvn jib:dockerBuild -DskipTests'
+                sh 'mvn compile jib:dockerBuild -DskipTests'
             }
             post {
                 success {
