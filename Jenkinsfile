@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+        disableConcurrentBuilds()
+    }
+
     tools {
         maven 'Maven'
         jdk 'JDK17'
@@ -45,6 +50,17 @@ pipeline {
             post {
                 success {
                     archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'mvn jib:dockerBuild -DskipTests'
+            }
+            post {
+                success {
+                    echo "Docker image built: ${APP_NAME}:latest"
                 }
             }
         }
