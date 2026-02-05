@@ -18,8 +18,8 @@ pipeline {
 
     environment {
         APP_NAME = 'cicd-sample-maven-project'
-        NEXUS_REGISTRY = 'localhost:8081/repository/docker-hosted/'  // Update with your Nexus Docker registry host:port
-        NEXUS_CREDENTIALS_ID = 'nexus-docker-credentials'  // Jenkins credentials ID for Nexus
+        NEXUS_REGISTRY = 'localhost:8082'
+        NEXUS_CREDENTIALS_ID = 'nexus-docker-credentials'
     }
 
     stages {
@@ -79,7 +79,7 @@ pipeline {
         stage('Push to Nexus') {
             steps {
                 withCredentials([usernamePassword(credentialsId: "${NEXUS_CREDENTIALS_ID}", usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                    sh 'mvn compile jib:build -DskipTests -Djib.to.auth.username=${NEXUS_USER} -Djib.to.auth.password=${NEXUS_PASS}'
+                    sh 'mvn compile jib:build -DskipTests -DsendCredentialsOverHttp=true -Djib.to.auth.username=${NEXUS_USER} -Djib.to.auth.password=${NEXUS_PASS}'
                 }
             }
             post {
