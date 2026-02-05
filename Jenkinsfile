@@ -80,9 +80,10 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: "${NEXUS_CREDENTIALS_ID}", usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
                     sh '''
+                        echo "Pushing to Nexus with user: $NEXUS_USER"
                         mvn compile jib:build -DskipTests -DsendCredentialsOverHttp=true \
-                            -Djib.to.auth.username=admin \
-                            -Djib.to.auth.password=admin
+                            -Djib.to.auth.username="$NEXUS_USER" \
+                            -Djib.to.auth.password="$NEXUS_PASS"
                     '''
                 }
             }
