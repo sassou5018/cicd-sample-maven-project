@@ -49,7 +49,9 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=project-cicd'
+                    withCredentials([string(credentialsId: 'sonarqube3', variable: 'SONAR_TOKEN')]) {
+                        sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=project-cicd -Dsonar.token=$SONAR_TOKEN'
+                    }
                 }
             }
         }
