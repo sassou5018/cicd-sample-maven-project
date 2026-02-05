@@ -22,6 +22,7 @@
         <!-- Nexus Docker Registry - use the Docker connector port, not the Nexus UI port -->
         <!-- In Nexus: Repository > docker-hosted > HTTP connector port -->
         <docker.registry>localhost:8082</docker.registry>
+        <docker.registry.url>http://localhost:8082</docker.registry.url>
     </properties>
     
     <dependencies>
