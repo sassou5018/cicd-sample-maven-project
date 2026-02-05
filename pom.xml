@@ -114,6 +114,7 @@
                         <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
                     </container>
                     <allowInsecureRegistries>true</allowInsecureRegistries>
+                    <sendCredentialsOverHttp>true</sendCredentialsOverHttp>
                 </configuration>
             </plugin>
         </plugins>
