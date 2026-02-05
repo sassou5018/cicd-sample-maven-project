@@ -19,6 +19,8 @@
     
     <properties>
         <java.version>17</java.version>
+        <!-- Nexus Docker Registry - update with your Nexus host and port -->
+        <docker.registry>localhost:8082</docker.registry>
     </properties>
     
     <dependencies>
@@ -94,7 +96,7 @@
                         <image>eclipse-temurin:17-jre-alpine@sha256:71337aec9f5c665b2a6b49baed50251ee9a8fa9995c589a93be8badc85e40551</image>
                     </from>
                     <to>
-                        <image>${project.artifactId}:${project.version}</image>
+                        <image>${docker.registry}/${project.artifactId}:${project.version}</image>
                         <tags>
                             <tag>latest</tag>
                         </tags>
@@ -110,6 +112,7 @@
                         </ports>
                         <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
                     </container>
+                    <allowInsecureRegistries>true</allowInsecureRegistries>
                 </configuration>
             </plugin>
         </plugins>
