@@ -93,6 +93,38 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                    # Stop and remove existing container if running
+                    docker stop ${APP_NAME} || true
+                    docker rm ${APP_NAME} || true
+                    
+                    # Remove any container using port 9999
+                    CONTAINER_ID=$(docker ps -q --filter "publish=9999")
+                    if [ -n "$CONTAINER_ID" ]; then
+                        docker stop $CONTAINER_ID
+                        docker rm $CONTAINER_ID
+                    fi
+                    
+                    # Run new container
+                    docker run -d \
+                        --name ${APP_NAME} \
+                        -p 9999:9999 \
+                        --restart unless-stopped \
+                        ${NEXUS_REGISTRY}/${APP_NAME}:latest
+                '''
+            }
+            post {
+                success {
+                    echo "Application deployed successfully on port 9999"
+                }
+                failure {
+                    echo "Deployment failed!"
+                }
+            }
+        }
     }
 
     post {
