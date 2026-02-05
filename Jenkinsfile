@@ -18,7 +18,7 @@ pipeline {
 
     environment {
         APP_NAME = 'cicd-sample-maven-project'
-        NEXUS_REGISTRY = 'localhost:8082'  // Update with your Nexus Docker registry host:port
+        NEXUS_REGISTRY = 'localhost:8081'  // Update with your Nexus Docker registry host:port
         NEXUS_CREDENTIALS_ID = 'nexus-docker-credentials'  // Jenkins credentials ID for Nexus
     }
 
