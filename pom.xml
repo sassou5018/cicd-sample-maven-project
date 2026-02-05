@@ -19,8 +19,9 @@
     
     <properties>
         <java.version>17</java.version>
-        <!-- Nexus Docker Registry - update with your Nexus host and port -->
-        <docker.registry>localhost:8081/repository/docker-hosted/</docker.registry>
+        <!-- Nexus Docker Registry - use the Docker connector port, not the Nexus UI port -->
+        <!-- In Nexus: Repository > docker-hosted > HTTP connector port -->
+        <docker.registry>localhost:8082</docker.registry>
     </properties>
     
     <dependencies>
