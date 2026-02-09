@@ -69,11 +69,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh '''
-            docker build \
-              -t ${NEXUS_REGISTRY}/${APP_NAME}:latest \
-              .
-        '''
+                sh 'mvn compile jib:dockerBuild -DskipTests'
             }
             post {
                 success {
@@ -84,22 +80,18 @@ pipeline {
 
         stage('Push to Nexus') {
             steps {
-                withCredentials([usernamePassword(
-            credentialsId: "${NEXUS_CREDENTIALS_ID}",
-            usernameVariable: 'NEXUS_USER',
-            passwordVariable: 'NEXUS_PASS'
-        )]) {
+                withCredentials([usernamePassword(credentialsId: "${NEXUS_CREDENTIALS_ID}", usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
                     sh '''
-                echo "$NEXUS_PASS" | docker login ${NEXUS_REGISTRY} \
-                  -u "$NEXUS_USER" --password-stdin
-
-                docker push ${NEXUS_REGISTRY}/${APP_NAME}:latest
-            '''
-        }
+                        echo "Pushing to Nexus with user: $NEXUS_USER"
+                        mvn compile jib:build -DskipTests -DsendCredentialsOverHttp=true \
+                            -Djib.to.auth.username="$NEXUS_USER" \
+                            -Djib.to.auth.password="$NEXUS_PASS"
+                    '''
+                }
             }
             post {
                 success {
-                    echo 'Docker image pushed to Nexus successfully'
+                    echo "Docker image pushed to Nexus: ${NEXUS_REGISTRY}/${APP_NAME}:latest"
                 }
             }
         }
@@ -107,24 +99,31 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-            docker login ${NEXUS_REGISTRY} || true
-
-            # Pull latest image
-            docker compose pull
-
-            # Stop existing container
-            docker compose down || true
-
-            # Start updated container
-            docker compose up -d
-        '''
+                    # Stop and remove existing container if running
+                    docker stop ${APP_NAME} || true
+                    docker rm ${APP_NAME} || true
+                    
+                    # Remove any container using port 9999
+                    CONTAINER_ID=$(docker ps -q --filter "publish=9999")
+                    if [ -n "$CONTAINER_ID" ]; then
+                        docker stop $CONTAINER_ID
+                        docker rm $CONTAINER_ID
+                    fi
+                    
+                    # Run new container
+                    docker run -d \
+                        --name ${APP_NAME} \
+                        -p 9999:9999 \
+                        --restart unless-stopped \
+                        ${NEXUS_REGISTRY}/${APP_NAME}:latest
+                '''
             }
             post {
                 success {
-                    echo 'Application deployed successfully on port 9999'
+                    echo "Application deployed successfully on port 9999"
                 }
                 failure {
-                    echo 'Deployment failed!'
+                    echo "Deployment failed!"
                 }
             }
         }
